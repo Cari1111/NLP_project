@@ -1,0 +1,62 @@
+{
+  "builder_name": "co_t-collection",
+  "citation": "@article{kim2023cot,\n  title={The CoT Collection: Improving Zero-shot and Few-shot Learning of Language Models via Chain-of-Thought Fine-Tuning},\n  author={Kim, Seungone and Joo, Se June and Kim, Doyoung and Jang, Joel and Ye, Seonghyeon and Shin, Jamin and Seo, Minjoon},\n  journal={arXiv preprint arXiv:2305.14045},\n  year={2023}\n}\n",
+  "config_name": "en",
+  "dataset_name": "co_t-collection",
+  "dataset_size": 2066735763,
+  "description": "",
+  "download_checksums": {
+    "./data/CoT_collection_en.json": {
+      "num_bytes": 2362433950,
+      "checksum": null
+    }
+  },
+  "download_size": 2362433950,
+  "features": {
+    "source": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "target": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "rationale": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "task": {
+      "dtype": "string",
+      "_type": "Value"
+    },
+    "type": {
+      "dtype": "string",
+      "_type": "Value"
+    }
+  },
+  "homepage": "https://github.com/kaistAI/CoT-Collection",
+  "license": "CC BY 4.0",
+  "size_in_bytes": 4429169713,
+  "splits": {
+    "train": {
+      "name": "train",
+      "num_bytes": 2066735763,
+      "num_examples": 1837928,
+      "shard_lengths": [
+        445000,
+        445000,
+        444000,
+        446000,
+        57928
+      ],
+      "dataset_name": "co_t-collection"
+    }
+  },
+  "version": {
+    "version_str": "1.0.0",
+    "description": "",
+    "major": 1,
+    "minor": 0,
+    "patch": 0
+  }
+}
