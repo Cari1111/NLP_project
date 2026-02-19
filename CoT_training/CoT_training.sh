@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Sample Slurm job script for Galvani 
+# Sample Slurm job script for Galvani
 
 #SBATCH -J CoT-training                # Job name
 #SBATCH --ntasks=1                 # Number of tasks
@@ -13,7 +13,7 @@
 #SBATCH --output=$WORK/NLP_project/CoT_training/prints.out       # File to which STDOUT will be written - make sure this is not on $HOME
 #SBATCH --error=$WORK/NLP_project/CoT_training/errors.err        # File to which STDERR will be written - make sure this is not on $HOME
 #SBATCH --mail-type=ALL            # Type of email notification- BEGIN,END,FAIL,ALL
-#SBATCH --mail-user=carina.straub@uni-tuebingen.de   # Email to which notifications will be sent
+#SBATCH --mail-user=carina.straub@student.uni-tuebingen.de   # Email to which notifications will be sent
 
 # Diagnostic and Analysis Phase - please leave these in.
 scontrol show job $SLURM_JOB_ID
@@ -27,7 +27,11 @@ ls $WORK # not necessary just here to illustrate that $WORK is available here
 # - loads virtual envs, like with anaconda
 # - set environment variables
 # - determine commandline arguments for `srun` calls
+source ~/.bashrc
+conda init bash
 conda activate $WORK/.conda/py-311-pytorch
 
 # Compute Phase
 srun python3 CoT_training_script.py  # srun will automatically pickup the configuration defined via `#SBATCH` and `sbatch` command line arguments
+
+conda deactivate
