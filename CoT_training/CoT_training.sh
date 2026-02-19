@@ -27,8 +27,12 @@ ls $WORK # not necessary just here to illustrate that $WORK is available here
 # - loads virtual envs, like with anaconda
 # - set environment variables
 # - determine commandline arguments for `srun` calls
+
+# Set Conda environment variables
+export XDG_CACHE_HOME='/mnt/lustre/work/eickhoff/esx833/.conda/py-311-pytorch/cache'
+export CONDA_PKGS_DIRS='/mnt/lustre/work/eickhoff/esx400/.conda/py-311-pytorch/cache'
+
 source ~/.bashrc
-conda init bash
 conda activate $WORK/.conda/py-311-pytorch
 
 # Compute Phase
