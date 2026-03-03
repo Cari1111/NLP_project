@@ -1,0 +1,28 @@
+
+CommandNotFoundError: Your shell has not been properly configured to use 'conda activate'.
+To initialize your shell, run
+
+    $ conda init <SHELL_NAME>
+
+Currently supported shells are:
+  - bash
+  - fish
+  - tcsh
+  - xonsh
+  - zsh
+  - powershell
+
+See 'conda init --help' for more information and options.
+
+IMPORTANT: You may need to close and restart your shell after running 'conda init'.
+
+
+None of PyTorch, TensorFlow >= 2.0, or Flax have been found. Models won't be available and only tokenizers, configuration and file/data utilities can be used.
+Traceback (most recent call last):
+  File "/mnt/lustre/work/eickhoff/esx833/NLP_project/CoT_training/CoT_training_script.py", line 4, in <module>
+    from CoT_Trainer import GeneratorTrainer
+  File "/mnt/lustre/work/eickhoff/esx833/NLP_project/CoT_training/CoT_Trainer.py", line 2, in <module>
+    import random, torch
+ModuleNotFoundError: No module named 'torch'
+srun: error: galvani-cn122: task 0: Exited with exit code 1
+srun: Terminating StepId=2303225.0

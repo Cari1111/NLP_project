@@ -8,7 +8,6 @@ from transformers import BertTokenizer, BertForMaskedLM, BertForSequenceClassifi
 from torch.utils.data import default_collate
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-device = 'cpu'
 torch.set_default_device(device)
 print('Device:', device)
 

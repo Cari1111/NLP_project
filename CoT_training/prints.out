@@ -1,0 +1,66 @@
+JobId=2403967 JobName=CoT-training
+   UserId=esx833(5205) GroupId=eickhoff(4063) MCS_label=N/A
+   Priority=47235 Nice=0 Account=eickhoff QOS=normal
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:00 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2026-03-03T21:39:20 EligibleTime=2026-03-03T21:39:20
+   AccrueTime=2026-03-03T21:39:20
+   StartTime=2026-03-03T21:40:23 EndTime=2026-03-03T22:40:23 Deadline=N/A
+   PreemptEligibleTime=2026-03-03T21:41:23 PreemptTime=None
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-03-03T21:40:23 Scheduler=Main
+   Partition=2080-galvani AllocNode:Sid=galvani-cn116:127339
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=galvani-cn123
+   BatchHost=galvani-cn123
+   NumNodes=1 NumCPUs=8 NumTasks=1 CPUs/Task=8 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=8,mem=50G,node=1,billing=2,gres/gpu=2
+   AllocTRES=cpu=8,mem=50G,node=1,billing=2,gres/gpu=2,gres/gpu:rtx2080ti=2
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=8 MinMemoryNode=50G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/mnt/lustre/work/eickhoff/esx833/NLP_project/CoT_training/CoT_training.sh
+   WorkDir=/mnt/lustre/work/eickhoff/esx833/NLP_project/CoT_training
+   StdErr=/mnt/lustre/work/eickhoff/esx833/NLP_project/CoT_training/errors.err
+   StdIn=/dev/null
+   StdOut=/mnt/lustre/work/eickhoff/esx833/NLP_project/CoT_training/prints.out
+   TresPerNode=gres/gpu:2
+   TresPerTask=cpu=8
+   MailUser=carina.straub@student.uni-tuebingen.de MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUT
+   
+
+/mnt/lustre/work/eickhoff/esx833/NLP_project/CoT_training
+Tue Mar  3 21:40:23 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.105.08             Driver Version: 580.105.08     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 2080 Ti     On  |   00000000:89:00.0 Off |                  N/A |
+| 27%   29C    P8              1W /  250W |       1MiB /  11264MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA GeForce RTX 2080 Ti     On  |   00000000:B1:00.0 Off |                  N/A |
+| 29%   34C    P8              1W /  250W |       1MiB /  11264MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+NLP_project
+slurm-2302741.out
+slurm-2402009.out
+vscode
+Device: cuda
+loaded dataset:  Dataset({
+    features: ['source', 'target', 'rationale', 'task', 'type'],
+    num_rows: 1000
+})
