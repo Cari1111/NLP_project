@@ -26,8 +26,8 @@ class GeneratorTrainer:
 
 
     def tokenize(self, features: List[Dict]) -> Dict[str, torch.Tensor]:
-        questions = self.tokenizer(features["source"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
-        answers = self.tokenizer(features["rationale"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
+        questions = self.tokenizer(list(features["source"]), add_special_tokens=False, return_tensors='pt', padding=True).to(device)
+        answers = self.tokenizer(list(features["rationale"]), add_special_tokens=False, return_tensors='pt', padding=True).to(device)
         return questions['input_ids'], answers['input_ids']
 
 
@@ -55,8 +55,8 @@ class GeneratorTrainer:
             generated_answers.append(torch.argmax(generated.logits[:,mask_pos], dim=-1))
             logits.append(generated.logits[:,mask_pos])
         #print(generated_answers, logits)
-        #print(torch.stack(generated_answers).shape)
-        #print(len(generated_answers))
+        print(torch.stack(generated_answers).shape)
+        print(len(generated_answers))
         #print(torch.stack(generated_answers).size(), torch.stack(logits).size())
         return torch.stack(generated_answers, dim=2), torch.stack(logits, dim=1)
 
@@ -64,6 +64,7 @@ class GeneratorTrainer:
         for step in range(steps):
             i_samples = np.random.randint(0, len(self.ds), batch_size)
             samples = self.ds.select(i_samples)
+            print(samples)
             answers, questions = self.tokenize(samples)
             generated_answers, logits = self.generate(questions, answers)
 
