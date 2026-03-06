@@ -1,21 +1,21 @@
-JobId=2403967 JobName=CoT-training
+JobId=2411088 JobName=CoT-training
    UserId=esx833(5205) GroupId=eickhoff(4063) MCS_label=N/A
-   Priority=47235 Nice=0 Account=eickhoff QOS=normal
+   Priority=37979 Nice=0 Account=eickhoff QOS=normal
    JobState=RUNNING Reason=None Dependency=(null)
    Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
-   RunTime=00:00:00 TimeLimit=01:00:00 TimeMin=N/A
-   SubmitTime=2026-03-03T21:39:20 EligibleTime=2026-03-03T21:39:20
-   AccrueTime=2026-03-03T21:39:20
-   StartTime=2026-03-03T21:40:23 EndTime=2026-03-03T22:40:23 Deadline=N/A
-   PreemptEligibleTime=2026-03-03T21:41:23 PreemptTime=None
-   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-03-03T21:40:23 Scheduler=Main
-   Partition=2080-galvani AllocNode:Sid=galvani-cn116:127339
+   RunTime=00:00:01 TimeLimit=01:00:00 TimeMin=N/A
+   SubmitTime=2026-03-06T13:25:58 EligibleTime=2026-03-06T13:25:58
+   AccrueTime=2026-03-06T13:25:58
+   StartTime=2026-03-06T13:25:58 EndTime=2026-03-06T14:25:58 Deadline=N/A
+   PreemptEligibleTime=2026-03-06T13:26:58 PreemptTime=None
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-03-06T13:25:58 Scheduler=Main
+   Partition=a100-galvani AllocNode:Sid=galvani-cn121:2898962
    ReqNodeList=(null) ExcNodeList=(null)
-   NodeList=galvani-cn123
-   BatchHost=galvani-cn123
+   NodeList=galvani-cn213
+   BatchHost=galvani-cn213
    NumNodes=1 NumCPUs=8 NumTasks=1 CPUs/Task=8 ReqB:S:C:T=0:0:*:*
-   ReqTRES=cpu=8,mem=50G,node=1,billing=2,gres/gpu=2
-   AllocTRES=cpu=8,mem=50G,node=1,billing=2,gres/gpu=2,gres/gpu:rtx2080ti=2
+   ReqTRES=cpu=8,mem=50G,node=1,billing=11,gres/gpu=2
+   AllocTRES=cpu=8,mem=50G,node=1,billing=11,gres/gpu=2,gres/gpu:a100=2
    Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
    MinCPUsNode=8 MinMemoryNode=50G MinTmpDiskNode=0
    Features=(null) DelayBoot=00:00:00
@@ -31,7 +31,7 @@ JobId=2403967 JobName=CoT-training
    
 
 /mnt/lustre/work/eickhoff/esx833/NLP_project/CoT_training
-Tue Mar  3 21:40:23 2026       
+Fri Mar  6 13:25:59 2026       
 +-----------------------------------------------------------------------------------------+
 | NVIDIA-SMI 580.105.08             Driver Version: 580.105.08     CUDA Version: 13.0     |
 +-----------------------------------------+------------------------+----------------------+
@@ -39,13 +39,13 @@ Tue Mar  3 21:40:23 2026
 | Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
 |                                         |                        |               MIG M. |
 |=========================================+========================+======================|
-|   0  NVIDIA GeForce RTX 2080 Ti     On  |   00000000:89:00.0 Off |                  N/A |
-| 27%   29C    P8              1W /  250W |       1MiB /  11264MiB |      0%      Default |
-|                                         |                        |                  N/A |
+|   0  NVIDIA A100-PCIE-40GB          On  |   00000000:A1:00.0 Off |                    0 |
+| N/A   35C    P0             42W /  250W |       0MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
 +-----------------------------------------+------------------------+----------------------+
-|   1  NVIDIA GeForce RTX 2080 Ti     On  |   00000000:B1:00.0 Off |                  N/A |
-| 29%   34C    P8              1W /  250W |       1MiB /  11264MiB |      0%      Default |
-|                                         |                        |                  N/A |
+|   1  NVIDIA A100-PCIE-40GB          On  |   00000000:C1:00.0 Off |                    0 |
+| N/A   35C    P0             46W /  250W |       0MiB /  40960MiB |      0%      Default |
+|                                         |                        |             Disabled |
 +-----------------------------------------+------------------------+----------------------+
 
 +-----------------------------------------------------------------------------------------+
@@ -59,8 +59,82 @@ NLP_project
 slurm-2302741.out
 slurm-2402009.out
 vscode
+1 - loss: 12.74792194366455
+1 - loss: 13.240952491760254
+1 - loss: 11.645194053649902
+1 - loss: 9.75235366821289
+1 - loss: 9.708544731140137
+1 - loss: 10.30609130859375
+1 - loss: 13.18005084991455
+1 - loss: 13.766488075256348
+1 - loss: 12.398098945617676
+1 - loss: 11.460556983947754
+1 - loss: 11.36987018585205
 Device: cuda
 loaded dataset:  Dataset({
     features: ['source', 'target', 'rationale', 'task', 'type'],
     num_rows: 1000
 })
+0 - loss: 14.653076171875
+0 - loss: 15.614434242248535
+0 - loss: 14.371699333190918
+0 - loss: 12.57198715209961
+0 - loss: 12.16736888885498
+1 - loss: 12.118130683898926
+1 - loss: 12.896120071411133
+1 - loss: 12.287715911865234
+3 - loss: 8.6603422164917
+3 - loss: 8.914209365844727
+3 - loss: 7.470123291015625
+3 - loss: 11.55563735961914
+3 - loss: 11.292593002319336
+4 - loss: 7.826307773590088
+4 - loss: 8.614274024963379
+4 - loss: 8.554015159606934
+4 - loss: 11.311553001403809
+4 - loss: 11.107114791870117
+5 - loss: 8.28459358215332
+5 - loss: 9.618317604064941
+5 - loss: 10.316471099853516
+6 - loss: 9.377934455871582
+6 - loss: 10.53563404083252
+6 - loss: 10.719017028808594
+6 - loss: 10.275153160095215
+7 - loss: 7.569433689117432
+7 - loss: 8.061216354370117
+7 - loss: 7.306723117828369
+7 - loss: 8.747095108032227
+7 - loss: 10.32734489440918
+7 - loss: 9.844951629638672
+7 - loss: 10.266983985900879
+7 - loss: 10.465219497680664
+7 - loss: 10.37891674041748
+7 - loss: 10.451935768127441
+7 - loss: 10.265564918518066
+7 - loss: 10.238005638122559
+7 - loss: 10.157690048217773
+8 - loss: 8.638497352600098
+8 - loss: 9.85699462890625
+8 - loss: 9.921563148498535
+8 - loss: 9.829278945922852
+9 - loss: 8.432385444641113
+9 - loss: 7.818596839904785
+9 - loss: 8.176025390625
+9 - loss: 9.311439514160156
+9 - loss: 9.945199966430664
+9 - loss: 9.198104858398438
+10 - loss: 8.145624160766602
+10 - loss: 8.304421424865723
+10 - loss: 9.346691131591797
+10 - loss: 8.692270278930664
+11 - loss: 7.965140342712402
+11 - loss: 8.51595687866211
+11 - loss: 8.953653335571289
+11 - loss: 8.210233688354492
+11 - loss: 8.945272445678711
+11 - loss: 9.261585235595703
+11 - loss: 9.220766067504883
+11 - loss: 8.583015441894531
+11 - loss: 8.854656219482422
+11 - loss: 8.448938369750977
+11 - loss: 8.604422569274902
