@@ -23,83 +23,56 @@ class GeneratorTrainer:
         self.loss_func = torch.nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=1e-5)
         self.cls_token_tensor = torch.tensor([[self.tokenizer.cls_token_id]])
-
+        self.losses = []
 
     def tokenize(self, features: List[Dict]) -> tuple[torch.Tensor, torch.Tensor]:
-        questions = self.tokenizer(list(features["source"]), add_special_tokens=False, return_tensors='pt', padding=True).to(device)
-        answers = self.tokenizer(list(features["rationale"]), add_special_tokens=False, return_tensors='pt', padding=True).to(device)
-        return questions['input_ids'], answers['input_ids']
+        questions = self.tokenizer(features["source"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
+        answers = self.tokenizer(features["rationale"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
+        return questions['input_ids'][0], answers['input_ids'][0]
 
-
-    def generate(self, questions: torch.Tensor, answers: torch.Tensor|None=None, max_length=200):
-        generated_answers = []
-        logits = []
-        batch_size = questions.shape[0]
-        cls_token_tensor = self.tokenizer.cls_token_id * torch.ones((batch_size, 1)).to(device)
-        mask_token_tensor = self.tokenizer.mask_token_id * torch.ones((batch_size, 1)).to(device)
-        sep_token_tensor = self.tokenizer.sep_token_id * torch.ones((batch_size, 1)).to(device)
-        for i in range(answers.shape[1] if answers is not None else max_length):
-            teacher_forcing_enabled = (answers is not None) and (i < len(answers))
-            use_teacher_forcing = (answers is not None) and (i < len(answers)) and (random.random() < self.teacher_forcing_percentage)
-            prefix = answers[:, :i] if use_teacher_forcing else (torch.stack(generated_answers, axis=1) if len(generated_answers)>0 else torch.zeros((batch_size, 0)))
-
-            #print(*(x.size() for x in (cls_token_tensor, questions, prefix, mask_token_tensor, sep_token_tensor)))
-            inp = torch.concat((cls_token_tensor, questions, prefix, mask_token_tensor, sep_token_tensor), dim=1)
-            mask_pos = -2
-            attention_mask = torch.ones(inp.shape).to(device)
-            attention_mask[:,mask_pos] = 0
-            token_type_ids = torch.concat((torch.zeros((batch_size, questions.shape[1]+1)), torch.ones((batch_size, prefix.shape[1]+2)).to(device)), dim=1)
-
-            #print(*(x.size() for x in (inp.int(), token_type_ids.int(), attention_mask.int())))
-            generated = self.model.forward(input_ids=inp.int(), token_type_ids=token_type_ids.int(), attention_mask=attention_mask.int())
-
-            generated_answers.append(torch.argmax(generated.logits[:,mask_pos], dim=-1))
-            logits.append(generated.logits[:,mask_pos])
-            torch.cuda.empty_cache()
-        #print(generated_answers, logits)
-        print(torch.stack(generated_answers).shape)
-        print(len(generated_answers))
-        #print(torch.stack(generated_answers).size(), torch.stack(logits).size())
-        return torch.stack(generated_answers, dim=1), torch.stack(logits, dim=1)
-
-    def generate_step(self, i: int, questions: torch.Tensor, answers: torch.Tensor, generated_answers: torch.Tensor, batch_size: int, cls_token_tensor:torch.Tensor, mask_token_tensor:torch.Tensor, sep_token_tensor:torch.Tensor):
+    def generate_step(self, i: int, questions: torch.Tensor, answers: torch.Tensor, generated_answers: torch.Tensor, cls_token_tensor:torch.Tensor, mask_token_tensor:torch.Tensor, sep_token_tensor:torch.Tensor):
         use_teacher_forcing = (answers is not None) and (i < len(answers)) and (random.random() < self.teacher_forcing_percentage)
-        prefix = answers[:, :i] if use_teacher_forcing else (torch.stack(generated_answers, axis=1) if len(generated_answers)>0 else torch.zeros((batch_size, 0)))
+        prefix = answers[:i] if use_teacher_forcing else (torch.stack(generated_answers) if len(generated_answers)>0 else torch.tensor([]))
 
         #print(*(x.size() for x in (cls_token_tensor, questions, prefix, mask_token_tensor, sep_token_tensor)))
-        inp = torch.concat((cls_token_tensor, questions, prefix, mask_token_tensor, sep_token_tensor), dim=1)
+        inp = torch.concat((cls_token_tensor, questions, prefix, mask_token_tensor, sep_token_tensor))
         mask_pos = -2
         attention_mask = torch.ones(inp.shape).to(device)
-        attention_mask[:,mask_pos] = 0
-        token_type_ids = torch.concat((torch.zeros((batch_size, questions.shape[1]+1)), torch.ones((batch_size, prefix.shape[1]+2)).to(device)), dim=1)
+        attention_mask[mask_pos] = 0
+        token_type_ids = torch.concat((torch.zeros((questions.shape[0]+1)), torch.ones((prefix.shape[0]+2)).to(device)))
 
         #print(*(x.size() for x in (inp.int(), token_type_ids.int(), attention_mask.int())))
-        generated = self.model.forward(input_ids=inp.int(), token_type_ids=token_type_ids.int(), attention_mask=attention_mask.int())
-        return torch.argmax(generated.logits[:,mask_pos], dim=-1), generated.logits[:,mask_pos]
+        generated = self.model.forward(input_ids=inp.unsqueeze(0).int(), token_type_ids=token_type_ids.unsqueeze(0).int(), attention_mask=attention_mask.unsqueeze(0).int())
+        logits = generated.logits.squeeze()[mask_pos]
+        #print(*(x.size() for x in (generated.logits, logits)))
+        return torch.argmax(logits), logits
 
-    def train(self, steps, batch_size=16, max_generate_length=200, max_generating_steps=64):
-        cls_token_tensor = self.tokenizer.cls_token_id * torch.ones((batch_size, 1)).to(device)
-        mask_token_tensor = self.tokenizer.mask_token_id * torch.ones((batch_size, 1)).to(device)
-        sep_token_tensor = self.tokenizer.sep_token_id * torch.ones((batch_size, 1)).to(device)
+    def train(self, steps, max_generate_length=200, max_generating_steps=64):
+        cls_token_tensor =  torch.tensor([self.tokenizer.cls_token_id]).to(device)
+        mask_token_tensor = torch.tensor([self.tokenizer.mask_token_id]).to(device)
+        sep_token_tensor = torch.tensor([self.tokenizer.sep_token_id]).to(device)
         special_tokens = (cls_token_tensor, mask_token_tensor, sep_token_tensor)
 
         for step in range(steps):
-            i_samples = np.random.randint(0, len(self.ds), batch_size)
-            samples = self.ds.select(i_samples)
-            print(samples)
-            answers, questions = self.tokenize(samples)
+            sample = self.ds[np.random.randint(0, len(self.ds))]
+            #print(sample)
+            questions, answers = self.tokenize(sample)
+            if questions.size()[0] < answers.size()[0]: print(f'question: {questions.size()[0]}, answer {answers.size()[0]}', sample)
 
             generated_answers = []
             logits = []
-            for i in range(answers.shape[1] if answers is not None else max_generate_length):
-                generated_answer, step_logits = self.generate_step(i, questions, answers, generated_answers, batch_size, *special_tokens)
+            max_iter = answers.shape[0] if answers is not None else max_generate_length
+            for i in range(max_iter):
+                generated_answer, step_logits = self.generate_step(i, questions, answers, generated_answers, *special_tokens)
                 generated_answers.append(generated_answer)
                 logits.append(step_logits)
 
-                if (i+1) % max_generating_steps == 0:
-                    loss = self.loss_func(torch.stack(logits, dim=-1), answers[:, i-max_generating_steps+1: i+1])
+                if (i+1) % max_generating_steps == 0 or i+1 == max_iter:
+                    iter_training_cycle = (i % max_generating_steps) + 1
+                    #print(*(x.size() for x in (torch.stack(logits, dim=-1), answers[i-iter_training_cycle+1: i+1])))
+                    loss = self.loss_func(torch.stack(logits), answers[i-iter_training_cycle+1: i+1])
                     loss.backward()
                     self.optimizer.step()
                     logits = []
                     print(f'{step} - loss: {loss.item()}')
-                    #TODO: fix last step
+                    self.losses.append(loss.item())
