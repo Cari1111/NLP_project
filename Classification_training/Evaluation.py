@@ -1,13 +1,8 @@
 # pip install -q transformers datasets accelerate torch==2.* sentencepiece
-import os, math, random, torch
-import numpy as np
-import matplotlib.pyplot as plt
-import pickle
+import torch
 from dataclasses import dataclass
-from typing import Dict, List, Optional
-from datasets import load_dataset, Dataset
-from transformers import BertTokenizer, BertForMaskedLM, BertForSequenceClassification
-from torch.utils.data import default_collate
+from datasets import Dataset
+from transformers import BertTokenizer, BertForSequenceClassification
 from sklearn.metrics import classification_report
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")

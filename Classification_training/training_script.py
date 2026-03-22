@@ -1,12 +1,6 @@
-import os, math, random, torch
-import numpy as np
-import matplotlib.pyplot as plt
-import pickle
-from dataclasses import dataclass
-from typing import Dict, List, Optional
-from datasets import load_from_disk, Dataset
-from transformers import BertTokenizer, BertForMaskedLM, BertForSequenceClassification
-from torch.utils.data import default_collate
+import torch
+from datasets import load_from_disk
+from transformers import BertTokenizer, BertForSequenceClassification
 
 from Trainer import ClassificationTrainer
 from Evaluation import Classification_Evaluation
