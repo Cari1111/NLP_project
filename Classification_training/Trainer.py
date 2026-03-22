@@ -30,7 +30,7 @@ class ClassificationTrainer:
 
     def train(self, episodes, batch_size=16):
         for episode in range(episodes):
-            print(f'Episode {episode}')
+            print(f'--------------------- Episode {episode} ---------------------')
             self.ds.shuffle()
             for step, batch in enumerate(self.ds.batch(batch_size=batch_size)):
                 tokenized_text = self.tokenizer(list(batch[self.text_field]), truncation=True, return_tensors='pt', padding=True).to(device)

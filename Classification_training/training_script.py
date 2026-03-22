@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import pickle
 from dataclasses import dataclass
 from typing import Dict, List, Optional
-from datasets import load_dataset, Dataset
+from datasets import load_from_disk, Dataset
 from transformers import BertTokenizer, BertForMaskedLM, BertForSequenceClassification
 from torch.utils.data import default_collate
 
@@ -15,7 +15,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 torch.set_default_device(device)
 print('Device:', device)
 
-yelp_dataset = load_dataset("datasets/yelp_ds_preprocessed")
+yelp_dataset = load_from_disk("datasets/yelp_ds_preprocessed")
+print(yelp_dataset, yelp_dataset['train'][0])
 
 ckpt = "bert-base-uncased"     # swap for domain/multilingual BERT as needed
 tok: BertTokenizer = BertTokenizer.from_pretrained(ckpt)
@@ -25,6 +26,7 @@ classification_trainer = ClassificationTrainer(
     model=classification_model,
     ds=yelp_dataset['train'],
     tokenizer=tok,
+    identifier_str='yelp_4eps_1'
 )
 
 classification_trainer.train(4, batch_size=32)
