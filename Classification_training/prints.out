@@ -1,0 +1,69 @@
+JobId=2491029 JobName=classification-training
+   UserId=esx833(5205) GroupId=eickhoff(4063) MCS_label=N/A
+   Priority=29752 Nice=0 Account=eickhoff QOS=normal
+   JobState=RUNNING Reason=None Dependency=(null)
+   Requeue=1 Restarts=0 BatchFlag=1 Reboot=0 ExitCode=0:0
+   RunTime=00:00:00 TimeLimit=02:00:00 TimeMin=N/A
+   SubmitTime=2026-04-13T20:29:39 EligibleTime=2026-04-13T20:29:39
+   AccrueTime=2026-04-13T20:29:40
+   StartTime=2026-04-13T20:29:40 EndTime=2026-04-13T22:29:40 Deadline=N/A
+   PreemptEligibleTime=2026-04-13T20:30:40 PreemptTime=None
+   SuspendTime=None SecsPreSuspend=0 LastSchedEval=2026-04-13T20:29:40 Scheduler=Main
+   Partition=2080-galvani AllocNode:Sid=galvani-cn109:1822233
+   ReqNodeList=(null) ExcNodeList=(null)
+   NodeList=galvani-cn121
+   BatchHost=galvani-cn121
+   NumNodes=1 NumCPUs=8 NumTasks=1 CPUs/Task=8 ReqB:S:C:T=0:0:*:*
+   ReqTRES=cpu=8,mem=50G,node=1,billing=2,gres/gpu=1
+   AllocTRES=cpu=8,mem=50G,node=1,billing=2,gres/gpu=1,gres/gpu:rtx2080ti=1
+   Socks/Node=* NtasksPerN:B:S:C=0:0:*:* CoreSpec=*
+   MinCPUsNode=8 MinMemoryNode=50G MinTmpDiskNode=0
+   Features=(null) DelayBoot=00:00:00
+   OverSubscribe=OK Contiguous=0 Licenses=(null) LicensesAlloc=(null) Network=(null)
+   Command=/mnt/lustre/work/eickhoff/esx833/NLP_project/Classification_training/classification_training.sh
+   WorkDir=/mnt/lustre/work/eickhoff/esx833/NLP_project/Classification_training
+   StdErr=/mnt/lustre/work/eickhoff/esx833/NLP_project/Classification_training/errors.err
+   StdIn=/dev/null
+   StdOut=/mnt/lustre/work/eickhoff/esx833/NLP_project/Classification_training/prints.out
+   TresPerNode=gres/gpu:1
+   TresPerTask=cpu=8
+   MailUser=carina.straub@student.uni-tuebingen.de MailType=INVALID_DEPEND,BEGIN,END,FAIL,REQUEUE,STAGE_OUT
+   
+
+/mnt/lustre/work/eickhoff/esx833/NLP_project/Classification_training
+Mon Apr 13 20:29:40 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.105.08             Driver Version: 580.105.08     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA GeForce RTX 2080 Ti     On  |   00000000:60:00.0 Off |                  N/A |
+|  0%   31C    P8              1W /  250W |       1MiB /  11264MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+NLP_project
+slurm-2302741.out
+slurm-2402009.out
+vscode
+Device: cuda
+DatasetDict({
+    train: Dataset({
+        features: ['text', 'label', 'label_idx'],
+        num_rows: 40000
+    })
+    test: Dataset({
+        features: ['text', 'label', 'label_idx'],
+        num_rows: 10000
+    })
+}) {'text': '  The paper first covers several properties of the extension of the divisibility relation to a set ${}^*\\hspace{-0.5mm}N$ of nonstandard integers. After that, a connection is established with the divisibility in the Stone-\\v{C}ech compactification $\\beta N$, obtaining an equivalent condition for divisibility of ultrafilters introduced by the author. Some earlier results are illuminated by nonstandard methods, and new results on ultrafilters on the higher levels of the divisibility hierarchy are obtained by means of limits. ', 'label': 'mathematics', 'label_idx': 0}
+--------------------- Episode 0 ---------------------

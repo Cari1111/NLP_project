@@ -42,7 +42,7 @@ class ClassificationTrainer:
                 outputs = self.model(**tokenized_text, labels=labels)
                 loss = outputs.loss
 
-                outputs.loss.backward()
+                loss.backward()
                 self.optimizer_network.step()
                 self.optimizer_head.step()
 
