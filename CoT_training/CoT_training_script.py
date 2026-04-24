@@ -1,23 +1,22 @@
-from datasets import load_from_disk
+import torch
 import pickle
+from datasets import load_from_disk
 from transformers import BertTokenizer, BertForMaskedLM
 
-from CoT_Trainer import GeneratorTrainer
+from CoT_Trainer import GeneratorTrainer, EncoderTrainer
 
-version = 1
+VERSION = "CoT_encoder_4eps"
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 # raw_dataset = load_dataset("kaist-ai/CoT-Collection", trust_remote_code=True, split='train[:1000]')
-raw_dataset = load_from_disk("CoT_ds_small")
+raw_dataset = load_from_disk("CoT_ds_medium_preprocessed") #"CoT_ds_small"
 print("loaded dataset: ", raw_dataset)
 
 name = "bert-base-uncased"     # swap for domain/multilingual BERT as needed
 tok: BertTokenizer = BertTokenizer.from_pretrained(name)
 model = BertForMaskedLM.from_pretrained('./base_model')
 
-generator_trainer = GeneratorTrainer(model, raw_dataset, tok)
-generator_trainer.train(steps=0)
+generator_trainer = EncoderTrainer(model, raw_dataset, tok, teacher_forcing_percentage=1, version=VERSION) # GeneratorTrainer
+generator_trainer.train(episodes=4, max_generating_steps=64)
 
-with open(f'models/{version}-losses.dat', 'wb') as f:
-    pickle.dump(generator_trainer.losses, f)
-
-generator_trainer.model.save_pretrained(f'models/{version}-model.dat')
+generator_trainer.save()
