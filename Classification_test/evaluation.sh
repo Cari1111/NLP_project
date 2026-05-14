@@ -28,18 +28,11 @@ ls $WORK # not necessary just here to illustrate that $WORK is available here
 # - set environment variables
 # - determine commandline arguments for `srun` calls
 
-export C_IDENTIFIER_STR="mnli_2text_CoT_mlr0_clr6_4layer_15eps" #0-2_CoT_4eps_1'
-export C_DATASET="mnli_2text_ds_preprocessed" #"mnli_ds_preprocessed" #"Scientific-text-classification-preprocessed" #"yelp_ds_preprocessed"
-export C_TEXT_FIELD="text1 text2" #"text" #"text1 text2"
-export C_LABEL_FIELD="label" #"label" #"label_idx"
+export C_DATASET="stanfordnlp/imdb"
 
 export C_NUM_HIDDEN_LAYERS=3
-export C_OUTPUT_FEATURES=3
-export C_LR_MODEL=0
-export C_LR_CLASSIFIER=6
-export C_MODEL_PATH="
-yelp_base_15eps yelp_base_mlr0_clr4_3layer_15eps-model.dat
-yelp_CoT_15eps yelp_CoT3_mlr0_clr4_3layer_15eps-model.dat"
+export C_OUTPUT_FEATURES=2
+export C_MODELS="${WORK}/NLP_project/CoT_training/models/3-model.dat" # "bert-base-uncased" #"${WORK}/NLP_project/CoT_training/models/3-model.dat"
 export C_EPISODES=15
 
 # Set Conda environment variables

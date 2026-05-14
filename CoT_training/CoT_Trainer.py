@@ -22,7 +22,7 @@ class GeneratorTrainer:
 
     def __post_init__(self):
         print(torch.cuda.device_count(), "GPUs are used")
-        self.model = torch.nn.DataParallel(self.bert_model)
+        self.model: BertForMaskedLM = torch.nn.DataParallel(self.bert_model)
         self.model.to(device)
         
         self.loss_func = torch.nn.CrossEntropyLoss()
@@ -48,7 +48,6 @@ class GeneratorTrainer:
         inp = torch.concat((cls_token_tensor, questions, prefix, mask_token_tensor, sep_token_tensor))
         mask_pos = -2
         attention_mask = torch.ones(inp.shape).to(device)
-        attention_mask[mask_pos] = 0
         token_type_ids = torch.concat((torch.zeros((questions.shape[0]+1)), torch.ones((prefix.shape[0]+2)).to(device)))
 
         #print(*(x.unsqueeze(0).int().size() for x in (inp, token_type_ids, attention_mask)))
@@ -96,17 +95,46 @@ class GeneratorTrainer:
                     print("--------------- saved data ---------------")
 
 class EncoderTrainer(GeneratorTrainer):
-    def generate_step(self, i: int, questions: torch.Tensor, answers: torch.Tensor, generated_answers: torch.Tensor, cls_token_tensor:torch.Tensor, mask_token_tensor:torch.Tensor, sep_token_tensor:torch.Tensor):
-        #print(*(x.size() for x in (cls_token_tensor, questions, prefix, mask_token_tensor, sep_token_tensor)))
-        answers[i] = self.tokenizer.mask_token_id
-        inp = torch.concat((cls_token_tensor, answers, sep_token_tensor, questions, sep_token_tensor))
-        attention_mask = torch.ones(inp.shape).to(device)
-        mask_pos = len(answers)+i+2
-        attention_mask[mask_pos] = 0
-        token_type_ids = torch.concat((torch.zeros((questions.shape[0]+2)), torch.ones((answers.shape[0]+1)).to(device)))
+    mask_percantage = 0.2
 
-        #print(*(x.unsqueeze(0).int().size() for x in (inp, token_type_ids, attention_mask)))
-        generated = self.model.forward(input_ids=inp.unsqueeze(0).int(), token_type_ids=token_type_ids.unsqueeze(0).int(), attention_mask=attention_mask.unsqueeze(0).int())
-        logits = generated.logits.squeeze()[mask_pos]
-        #print(*(x.size() for x in (generated.logits, logits)))
-        return torch.argmax(logits), logits
+    def tokenize(self, features: List[Dict]) -> tuple[torch.Tensor, torch.Tensor]:
+        questions = self.tokenizer.__call__(features["source"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
+        answers = self.tokenizer(features["rationale"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
+        return questions['input_ids'], questions["attention_mask"], answers['input_ids'], answers["attention_mask"]
+
+    def train(self, episodes, max_generate_length=200, max_generating_steps=64):
+        for episode in range(episodes):
+            print(f"--------------- Episode {episode} ---------------")
+            self.ds.shuffle()
+            for step, sample in enumerate(self.ds):
+                questions, questions_attention, answers, answers_attention = self.tokenize(sample)
+                mask_indexes = np.array(random.sample(range(len(answers)), int((len(answers)-2)*self.mask_percantage)))
+                mask_answers = answers.clone()
+                mask_answers[mask_indexes] = self.tokenizer.mask_token_id
+                input = torch.cat((
+                    torch.tensor([self.tokenizer.cls_token_id]), 
+                    questions, 
+                    torch.tensor([self.tokenizer.sep_token_id]),
+                    mask_answers,
+                    torch.tensor([self.tokenizer.sep_token_id])
+                ))
+                attention_mask = torch.cat((
+                    torch.ones(1), 
+                    questions_attention, 
+                    torch.ones(1),
+                    answers_attention,
+                    torch.ones(1)
+                ))
+
+                logits = self.model.forward(input, attention_mask=attention_mask).logits
+                self.optimizer.zero_grad()
+                loss = self.loss_func(logits[mask_indexes+len(questions)+2], answers[mask_indexes])
+                loss.backward()
+                self.optimizer.step()
+                self.losses.append(loss.item())
+
+                if ((step+1) % 500) == 0:
+                    self.save(name=f'tmp')
+                    print("--------------- saved tmp data ---------------")
+                    self.save(name=f'{self.version}-{episode}')
+                    print("--------------- saved data ---------------")
