@@ -100,7 +100,7 @@ class EncoderTrainer(GeneratorTrainer):
     def tokenize(self, features: List[Dict]) -> tuple[torch.Tensor, torch.Tensor]:
         questions = self.tokenizer.__call__(features["source"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
         answers = self.tokenizer(features["rationale"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
-        return questions['input_ids'], questions["attention_mask"], answers['input_ids'], answers["attention_mask"]
+        return questions['input_ids'].squeeze(0), questions["attention_mask"].squeeze(0), answers['input_ids'].squeeze(0), answers["attention_mask"].squeeze(0)
 
     def train(self, episodes, max_generate_length=200, max_generating_steps=64):
         for episode in range(episodes):
@@ -112,25 +112,26 @@ class EncoderTrainer(GeneratorTrainer):
                 mask_answers = answers.clone()
                 mask_answers[mask_indexes] = self.tokenizer.mask_token_id
                 input = torch.cat((
-                    torch.tensor([self.tokenizer.cls_token_id]), 
-                    questions, 
+                    torch.tensor([self.tokenizer.cls_token_id]),
+                    questions,
                     torch.tensor([self.tokenizer.sep_token_id]),
                     mask_answers,
                     torch.tensor([self.tokenizer.sep_token_id])
                 ))
                 attention_mask = torch.cat((
-                    torch.ones(1), 
-                    questions_attention, 
+                    torch.ones(1),
+                    questions_attention,
                     torch.ones(1),
                     answers_attention,
                     torch.ones(1)
                 ))
 
-                logits = self.model.forward(input, attention_mask=attention_mask).logits
+                logits = self.model.forward(input.unsqueeze(0).int(), attention_mask=attention_mask.unsqueeze(0).int()).logits.squeeze(0)
                 self.optimizer.zero_grad()
                 loss = self.loss_func(logits[mask_indexes+len(questions)+2], answers[mask_indexes])
                 loss.backward()
                 self.optimizer.step()
+                print(loss.item())
                 self.losses.append(loss.item())
 
                 if ((step+1) % 500) == 0:
