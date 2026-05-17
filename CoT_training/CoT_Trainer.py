@@ -96,7 +96,7 @@ class GeneratorTrainer:
 
 @dataclass
 class EncoderTrainer(GeneratorTrainer):
-    mask_percantage = 0.2
+    mask_percentage: float = 0.2
 
     def tokenize(self, features: List[Dict]) -> tuple[torch.Tensor, torch.Tensor]:
         questions = self.tokenizer.__call__(features["source"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
@@ -109,7 +109,7 @@ class EncoderTrainer(GeneratorTrainer):
             self.ds.shuffle()
             for step, sample in enumerate(self.ds):
                 questions, questions_attention, answers, answers_attention = self.tokenize(sample)
-                mask_indexes = np.array(random.sample(range(len(answers)), int((len(answers)-2)*self.mask_percantage)))
+                mask_indexes = np.array(random.sample(range(len(answers)), int((len(answers)-2)*self.mask_percentage)))
                 mask_answers = answers.clone()
                 mask_answers[mask_indexes] = self.tokenizer.mask_token_id
                 input = torch.cat((
