@@ -94,6 +94,7 @@ class GeneratorTrainer:
                     self.save(name=f'{self.version}-{episode}')
                     print("--------------- saved data ---------------")
 
+@dataclass
 class EncoderTrainer(GeneratorTrainer):
     mask_percantage = 0.2
 
