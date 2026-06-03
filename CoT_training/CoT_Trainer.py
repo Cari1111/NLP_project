@@ -4,7 +4,8 @@ import numpy as np
 import pickle
 from dataclasses import dataclass
 from typing import Dict, List
-from datasets import load_dataset, Dataset
+from datasets import DatasetDict
+from datasets.arrow_dataset import Dataset
 from transformers import BertTokenizer, BertForMaskedLM, BertForSequenceClassification
 from torch.utils.data import default_collate
 
@@ -87,7 +88,7 @@ class GeneratorTrainer:
                         logits = []
                         print(f'{step} - loss: {loss.item()}')
                         self.losses.append(loss.item())
-                
+
                 if ((step+1) % 500) == 0:
                     self.save(name=f'tmp')
                     print("--------------- saved tmp data ---------------")
@@ -101,33 +102,32 @@ class EncoderTrainer(GeneratorTrainer):
     def tokenize(self, features: List[Dict]) -> tuple[torch.Tensor, torch.Tensor]:
         questions = self.tokenizer.__call__(features["source"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
         answers = self.tokenizer(features["rationale"], add_special_tokens=False, return_tensors='pt', padding=True).to(device)
-        return questions['input_ids'].squeeze(0), questions["attention_mask"].squeeze(0), answers['input_ids'].squeeze(0), answers["attention_mask"].squeeze(0)
+        return questions['input_ids'], questions["attention_mask"], answers['input_ids'], answers["attention_mask"]
 
-    def train(self, episodes, max_generate_length=200, max_generating_steps=64):
+    def train(self, episodes, max_generate_length=200, max_generating_steps=64, batch_size=32):
         for episode in range(episodes):
             print(f"--------------- Episode {episode} ---------------")
-            self.ds.shuffle()
-            for step, sample in enumerate(self.ds):
-                questions, questions_attention, answers, answers_attention = self.tokenize(sample)
+            episode_ds = self.ds.shuffle()
+            for step, samples in enumerate(episode_ds.batch(batch_size=batch_size)):
+                questions, questions_attention, answers, answers_attention = self.tokenize(samples)
                 mask_indexes = np.array(random.sample(range(len(answers)), int((len(answers)-2)*self.mask_percentage)))
                 mask_answers = answers.clone()
                 mask_answers[mask_indexes] = self.tokenizer.mask_token_id
                 input = torch.cat((
-                    torch.tensor([self.tokenizer.cls_token_id]),
+                    self.tokenizer.cls_token_id*torch.ones((batch_size, 1)),
                     questions,
-                    torch.tensor([self.tokenizer.sep_token_id]),
+                    self.tokenizer.sep_token_id*torch.ones((batch_size, 1)),
                     mask_answers,
-                    torch.tensor([self.tokenizer.sep_token_id])
-                ))
+                    self.tokenizer.sep_token_id*torch.ones((batch_size, 1)),
+                ), dim=1)
                 attention_mask = torch.cat((
-                    torch.ones(1),
+                    torch.ones((batch_size, 1)),
                     questions_attention,
-                    torch.ones(1),
+                    torch.ones((batch_size, 1)),
                     answers_attention,
-                    torch.ones(1)
-                ))
-
-                logits = self.model.forward(input.unsqueeze(0).int(), attention_mask=attention_mask.unsqueeze(0).int()).logits.squeeze(0)
+                    torch.ones((batch_size, 1))
+                ), dim=1)
+                logits = self.model.forward(input.int(), attention_mask=attention_mask.int()).logits.squeeze(0)
                 self.optimizer.zero_grad()
                 loss = self.loss_func(logits[mask_indexes+len(questions)+2], answers[mask_indexes])
                 loss.backward()
