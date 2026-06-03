@@ -21,7 +21,7 @@ name = "bert-base-uncased"     # swap for domain/multilingual BERT as needed
 tok: BertTokenizer = BertTokenizer.from_pretrained(name)
 model = BertForMaskedLM.from_pretrained('./base_model')
 
-generator_trainer = EncoderTrainer(model, raw_dataset, tok, teacher_forcing_percentage=1, version=IDENTIFIER_STR, mask_percantage=MASK_PERCENTAGE) # GeneratorTrainer
+generator_trainer = EncoderTrainer(model, raw_dataset, tok, teacher_forcing_percentage=1, version=IDENTIFIER_STR, mask_percentage=MASK_PERCENTAGE) # GeneratorTrainer
 generator_trainer.train(episodes=4, max_generating_steps=64)
 
 generator_trainer.save()
