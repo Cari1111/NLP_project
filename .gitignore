@@ -208,5 +208,5 @@ __marimo__/
 
 base_model/*
 CoT_training/models/*
-*/datasets/*
+*datasets/*
 */models/*
